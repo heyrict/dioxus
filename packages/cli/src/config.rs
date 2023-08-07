@@ -4,6 +4,7 @@ use std::{
     collections::HashMap,
     path::{Path, PathBuf},
 };
+use tauri_bundler::bundle::WixLanguage;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DioxusConfig {
@@ -387,7 +388,8 @@ impl From<DebianSettings> for tauri_bundler::DebianSettings {
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct WixSettings {
-    pub language: Vec<(String, Option<PathBuf>)>,
+    #[serde(default)]
+    pub language: WixLanguage,
     pub template: Option<PathBuf>,
     pub fragment_paths: Vec<PathBuf>,
     pub component_group_refs: Vec<String>,
@@ -406,24 +408,7 @@ pub struct WixSettings {
 impl From<WixSettings> for tauri_bundler::WixSettings {
     fn from(val: WixSettings) -> Self {
         tauri_bundler::WixSettings {
-            language: tauri_bundler::bundle::WixLanguage({
-                let mut languages: Vec<_> = val
-                    .language
-                    .iter()
-                    .map(|l| {
-                        (
-                            l.0.clone(),
-                            tauri_bundler::bundle::WixLanguageConfig {
-                                locale_path: l.1.clone(),
-                            },
-                        )
-                    })
-                    .collect();
-                if languages.is_empty() {
-                    languages.push(("en-US".into(), Default::default()));
-                }
-                languages
-            }),
+            language: val.language,
             template: val.template,
             fragment_paths: val.fragment_paths,
             component_group_refs: val.component_group_refs,
