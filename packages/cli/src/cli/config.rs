@@ -48,7 +48,10 @@ impl Config {
                 log::info!("🚩 Init config file completed.");
             }
             Config::FormatPrint {} => {
-                println!("{:#?}", crate::CrateConfig::new(None)?.dioxus_config);
+                let dioxus_config = crate::CrateConfig::new(None)?.dioxus_config;
+                println!("{:#?}", &dioxus_config);
+                println!("\n# tauri_bundler::BundleSettings\n");
+                println!("{:#?}", tauri_bundler::BundleSettings::from(dioxus_config.bundle));
             }
             Config::CustomHtml {} => {
                 let html_path = crate_root.join("index.html");
